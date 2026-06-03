@@ -5,241 +5,267 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>便當點餐 · 科林研發</title>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --green: #06C167; --green-d: #049A52;
-  --bg: #F5F5F5; --card: #fff; --text: #1A1A1A; --muted: #888;
-  --r: 16px;
-}
-body { font-family: -apple-system,"PingFang TC",sans-serif; background:var(--bg); color:var(--text); min-height:100dvh; display:flex; flex-direction:column; }
-header { background:var(--green); color:white; padding:14px 18px; padding-top:calc(14px + env(safe-area-inset-top)); display:flex; align-items:center; justify-content:space-between; }
-header h1 { font-size:20px; font-weight:800; }
-.address-chip { background:rgba(255,255,255,.2); border-radius:20px; padding:4px 10px; font-size:12px; }
-.section { padding:12px 14px 0; }
-.label { font-size:11px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
-.shop-card { background:var(--card); border-radius:var(--r); padding:14px 16px; box-shadow:0 2px 8px rgba(0,0,0,.08); display:flex; align-items:center; gap:14px; }
-.shop-icon { font-size:36px; flex-shrink:0; }
-.shop-info { flex:1; }
-.shop-info h2 { font-size:17px; font-weight:700; }
-.shop-meta { display:flex; gap:8px; margin-top:5px; flex-wrap:wrap; }
-.badge { font-size:12px; padding:2px 8px; border-radius:20px; background:#F0F0F0; color:#444; font-weight:600; }
-.badge.g { background:#E6F9F0; color:var(--green-d); }
-.badge.o { background:#FFF3E0; color:#E65100; }
-#refresh-btn { background:var(--green); color:white; border:none; border-radius:10px; padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer; flex-shrink:0; }
-.menu-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.menu-item { background:var(--card); border-radius:var(--r); padding:14px; box-shadow:0 2px 6px rgba(0,0,0,.07); display:flex; flex-direction:column; gap:5px; border:2.5px solid transparent; cursor:pointer; transition:border-color .15s,transform .1s; user-select:none; }
-.menu-item:active { transform:scale(.97); }
-.menu-item.selected { border-color:var(--green); background:#F0FCF5; }
-.item-name { font-size:15px; font-weight:700; }
-.item-price { font-size:13px; color:var(--green-d); font-weight:600; }
-.qty-row { display:flex; align-items:center; gap:6px; margin-top:4px; }
-.qty-btn { width:28px; height:28px; border-radius:50%; border:2px solid var(--green); background:white; color:var(--green); font-size:18px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-.qty-btn:active { background:var(--green); color:white; }
-.qty-num { font-size:16px; font-weight:800; min-width:20px; text-align:center; }
-.quick-row { display:flex; gap:8px; }
-#quick-input { flex:1; border:2px solid #E0E0E0; border-radius:12px; padding:11px 14px; font-size:16px; outline:none; font-family:inherit; transition:border-color .2s; }
-#quick-input:focus { border-color:var(--green); }
-#parse-btn { background:var(--green); color:white; border:none; border-radius:12px; padding:11px 18px; font-size:14px; font-weight:700; cursor:pointer; white-space:nowrap; }
-.order-card { background:var(--card); border-radius:var(--r); box-shadow:0 2px 8px rgba(0,0,0,.08); overflow:hidden; }
-.order-head { background:#F8F8F8; padding:10px 16px; font-size:12px; font-weight:700; color:var(--muted); border-bottom:1px solid #EEE; }
-.order-row { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; font-size:15px; border-bottom:1px solid #F5F5F5; }
-.order-row:last-child { border-bottom:none; }
-.order-total { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; font-size:16px; font-weight:800; border-top:2px solid #EEE; }
-.order-total span:last-child { color:var(--green-d); }
-.empty { padding:20px; text-align:center; color:var(--muted); font-size:14px; }
-.order-section { padding:12px 14px; flex:1; }
-.cta-bar { padding:12px 14px; padding-bottom:calc(12px + env(safe-area-inset-bottom)); background:var(--card); box-shadow:0 -2px 10px rgba(0,0,0,.07); }
-#order-btn { width:100%; background:var(--green); color:white; border:none; border-radius:16px; padding:16px; font-size:18px; font-weight:800; cursor:pointer; transition:transform .1s; }
-#order-btn:active { transform:scale(.98); }
-#order-btn:disabled { background:#CCC; }
-.toast { position:fixed; bottom:100px; left:50%; transform:translateX(-50%); background:#1A1A1A; color:white; padding:10px 22px; border-radius:24px; font-size:14px; font-weight:600; opacity:0; transition:opacity .3s; pointer-events:none; z-index:200; white-space:nowrap; }
-.toast.show { opacity:1; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--g:#06C167;--gd:#049A52;--bg:#F5F5F5;--card:#fff;--text:#1A1A1A;--muted:#888;--r:16px}
+body{font-family:-apple-system,"PingFang TC",sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;flex-direction:column}
+header{background:var(--g);color:white;padding:14px 18px;padding-top:calc(14px + env(safe-area-inset-top));display:flex;align-items:center;justify-content:space-between}
+header h1{font-size:20px;font-weight:800}
+.chip{background:rgba(255,255,255,.2);border-radius:20px;padding:4px 10px;font-size:12px}
+.sec{padding:12px 14px 0}
+.lbl{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.shop-card{background:var(--card);border-radius:var(--r);padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,.08);display:flex;align-items:center;gap:12px}
+.shop-icon{font-size:34px;flex-shrink:0}
+.shop-info{flex:1;min-width:0}
+.shop-info h2{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
+.badge{font-size:11px;padding:2px 8px;border-radius:20px;background:#F0F0F0;color:#444;font-weight:600;white-space:nowrap}
+.badge.g{background:#E6F9F0;color:var(--gd)}
+.badge.o{background:#FFF3E0;color:#E65100}
+.badge.p{background:#FFF0F0;color:#C62828}
+#rbtn{background:var(--g);color:white;border:none;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mi{background:var(--card);border-radius:var(--r);padding:12px;box-shadow:0 2px 6px rgba(0,0,0,.07);display:flex;flex-direction:column;gap:4px;border:2.5px solid transparent;cursor:pointer;transition:border-color .15s,transform .1s;user-select:none}
+.mi:active{transform:scale(.97)}
+.mi.sel{border-color:var(--g);background:#F0FCF5}
+.iname{font-size:14px;font-weight:700;line-height:1.3}
+.iprice{font-size:13px;color:var(--gd);font-weight:600}
+.qrow{display:flex;align-items:center;gap:5px;margin-top:3px}
+.qbtn{width:26px;height:26px;border-radius:50%;border:2px solid var(--g);background:white;color:var(--g);font-size:17px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qbtn:active{background:var(--g);color:white}
+.qnum{font-size:15px;font-weight:800;min-width:18px;text-align:center}
+.qrow2{display:flex;gap:8px}
+#qi{flex:1;border:2px solid #E0E0E0;border-radius:12px;padding:11px 14px;font-size:16px;outline:none;font-family:inherit;transition:border-color .2s}
+#qi:focus{border-color:var(--g)}
+#pb{background:var(--g);color:white;border:none;border-radius:12px;padding:11px 16px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.ocard{background:var(--card);border-radius:var(--r);box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:hidden}
+.ohead{background:#F8F8F8;padding:10px 16px;font-size:12px;font-weight:700;color:var(--muted);border-bottom:1px solid #EEE}
+.orow{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;font-size:14px;border-bottom:1px solid #F5F5F5}
+.orow:last-child{border-bottom:none}
+.ototal{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;font-size:16px;font-weight:800;border-top:2px solid #EEE}
+.ototal span:last-child{color:var(--gd)}
+.empty{padding:18px;text-align:center;color:var(--muted);font-size:13px}
+.osec{padding:12px 14px;flex:1}
+.cta{padding:12px 14px;padding-bottom:calc(12px + env(safe-area-inset-bottom));background:var(--card);box-shadow:0 -2px 10px rgba(0,0,0,.07)}
+#obtn{width:100%;background:var(--g);color:white;border:none;border-radius:16px;padding:16px;font-size:17px;font-weight:800;cursor:pointer;transition:transform .1s}
+#obtn:active{transform:scale(.98)}
+#obtn:disabled{background:#CCC}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1A1A1A;color:white;padding:10px 20px;border-radius:24px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:200;white-space:nowrap}
+.toast.show{opacity:1}
 </style>
 </head>
 <body>
 <header>
   <div><h1>🍱 今日便當</h1><small>科林研發</small></div>
-  <div class="address-chip">📍 研發二路22號</div>
+  <div class="chip">📍 研發二路22號</div>
 </header>
 
-<div class="section">
-  <div class="label">今日推薦店家</div>
+<div class="sec">
+  <div class="lbl">今日推薦店家（Uber Eats 新竹即時）</div>
   <div class="shop-card">
-    <div class="shop-icon" id="shop-icon">🍱</div>
+    <div class="shop-icon" id="si">🍱</div>
     <div class="shop-info">
-      <h2 id="shop-name">載入中…</h2>
-      <div class="shop-meta">
-        <span class="badge g" id="shop-rating">—</span>
-        <span class="badge o" id="shop-time">—</span>
-        <span class="badge" id="shop-price">—</span>
-      </div>
+      <h2 id="sn">載入中…</h2>
+      <div class="meta" id="sm"></div>
     </div>
-    <button id="refresh-btn" onclick="nextShop()">換一家</button>
+    <button id="rbtn" onclick="next()">換一家</button>
   </div>
 </div>
 
-<div class="section">
-  <div class="label" style="margin-top:10px">點選加入訂單</div>
-  <div class="menu-grid" id="menu-grid"></div>
+<div class="sec">
+  <div class="lbl" style="margin-top:10px">點選加入訂單</div>
+  <div class="mgrid" id="mg"></div>
 </div>
 
-<div class="section">
-  <div class="label" style="margin-top:10px">快速輸入（例：1雞腿 2排骨）</div>
-  <div class="quick-row">
-    <input id="quick-input" placeholder="數字＋品名，按 Enter 確認" autocomplete="off">
-    <button id="parse-btn" onclick="parseQuick()">確認</button>
+<div class="sec">
+  <div class="lbl" style="margin-top:10px">快速輸入（例：1雞腿 2排骨）</div>
+  <div class="qrow2">
+    <input id="qi" placeholder="數字＋品名，按 Enter 確認" autocomplete="off">
+    <button id="pb" onclick="parse()">確認</button>
   </div>
 </div>
 
-<div class="order-section">
-  <div class="label" style="margin-top:4px">訂單明細</div>
-  <div class="order-card">
-    <div class="order-head">訂購人：戴薇玲 ／ 配送至科林研發</div>
-    <div id="order-rows"><div class="empty">尚未選擇餐點</div></div>
-    <div class="order-total" id="order-total" style="display:none">
-      <span>合計</span><span id="total-price">$0</span>
-    </div>
+<div class="osec">
+  <div class="lbl" style="margin-top:4px">訂單明細</div>
+  <div class="ocard">
+    <div class="ohead">訂購人：戴薇玲 ／ 配送至科林研發</div>
+    <div id="or"><div class="empty">尚未選擇餐點</div></div>
+    <div class="ototal" id="ot" style="display:none"><span>合計</span><span id="tp">$0</span></div>
   </div>
 </div>
 
-<div class="cta-bar">
-  <button id="order-btn" disabled onclick="placeOrder()">選擇餐點後下單</button>
+<div class="cta">
+  <button id="obtn" disabled onclick="order()">選擇餐點後下單</button>
 </div>
 <div class="toast" id="toast"></div>
 
 <script>
-// ── 便當店資料（Uber Eats 新竹） ──
+// ── 真實 Uber Eats 資料（新竹研發二路22號，即時搜尋結果）──
 const SHOPS = [
-  { name:"鬍鬚張便當", icon:"🍱", rating:"4.6", time:"15-25分鐘", price:"$",
-    url:"https://www.ubereats.com/tw/search?q=鬍鬚張&pl=sJn97JG8T6mMFi1gK6RNPQ%3D%3D",
-    menu:[{name:"雞腿便當",price:110,key:"chicken"},{name:"排骨便當",price:105,key:"pork"},
-          {name:"控肉便當",price:95,key:"braised"},{name:"素食便當",price:85,key:"veg"}]},
-  { name:"池上便當", icon:"🎍", rating:"4.5", time:"20-30分鐘", price:"$",
-    url:"https://www.ubereats.com/tw/search?q=池上便當",
-    menu:[{name:"雞腿便當",price:120,key:"chicken"},{name:"排骨便當",price:115,key:"pork"},
-          {name:"鮭魚便當",price:135,key:"salmon"},{name:"素食便當",price:100,key:"veg"}]},
-  { name:"鐵路便當", icon:"🚂", rating:"4.4", time:"20-30分鐘", price:"$",
-    url:"https://www.ubereats.com/tw/search?q=鐵路便當",
-    menu:[{name:"雞腿便當",price:100,key:"chicken"},{name:"排骨便當",price:95,key:"pork"},
-          {name:"控肉便當",price:90,key:"braised"},{name:"素食便當",price:80,key:"veg"}]},
-  { name:"快餐便當自助餐", icon:"🥡", rating:"4.3", time:"15-25分鐘", price:"$",
-    url:"https://www.ubereats.com/tw/search?q=便當+新竹",
-    menu:[{name:"雞腿便當",price:90,key:"chicken"},{name:"排骨便當",price:85,key:"pork"},
-          {name:"控肉便當",price:80,key:"braised"},{name:"素食便當",price:75,key:"veg"}]},
+  { name:"金仙蝦捲飯", icon:"🦐", rating:"4.9", eta:"18", price:"$",
+    promo:"",
+    url:"https://www.ubereats.com/store/%E9%87%91%E4%BB%99%E8%9D%A6%E6%8D%B2%E9%A3%AF/nN0uN6K7V5WjIj_VXPmRog?diningMode=DELIVERY",
+    menu:[
+      {name:"滷肉飯便當",    price:130, key:"braised"},
+      {name:"方便菜便當",    price:120, key:"veg"},
+      {name:"雞腿蝦捲雙拼", price:238, key:"chicken"},
+      {name:"雞腿雙拼香腸", price:256, key:"sausage"},
+    ]},
+  { name:"吃霸快餐便當", icon:"🥡", rating:"4.9", eta:"21", price:"$",
+    promo:"",
+    url:"https://www.ubereats.com/store/%E5%90%83%E9%9C%B8%E5%BF%AB%E9%A4%90%E4%BE%BF%E7%95%B6/j0Cr1tP1XPSlDxQFZ18fag?diningMode=DELIVERY",
+    menu:[
+      {name:"菜飯便當",      price:108, key:"veg"},
+      {name:"排骨飯便當",    price:141, key:"pork"},
+      {name:"霸雞腿飯便當",  price:161, key:"chicken"},
+      {name:"控肉飯便當",    price:141, key:"braised"},
+      {name:"蝦捲飯便當",    price:121, key:"shrimp"},
+    ]},
+  { name:"八廚職人弁当 科園店", icon:"🍱", rating:"4.9", eta:"22", price:"$$",
+    promo:"買一送一",
+    url:"https://www.ubereats.com/store/%E5%85%AB%E5%BB%9A%E8%81%B7%E4%BA%BA%E5%BC%81%E5%BD%93-%E6%96%B0%E7%AB%B9%E7%A7%91%E5%9C%92%E5%BA%97/VWmvoxZNXh-mM5PIui_PNA?diningMode=DELIVERY",
+    menu:[
+      {name:"招牌燒肉弁当",  price:145, key:"pork"},
+      {name:"照燒雞腿弁当",  price:165, key:"chicken"},
+      {name:"厚燒排骨弁当",  price:175, key:"ribs"},
+      {name:"和風牛肉弁当",  price:175, key:"beef"},
+    ]},
+  { name:"鬍鬚張 新竹關新店", icon:"🧔", rating:"4.9", eta:"22", price:"$$",
+    promo:"指定品項折$25",
+    url:"https://www.ubereats.com/store/%E9%AC%8D%E9%AC%9A%E5%BC%B5-%E6%96%B0%E7%AB%B9%E9%97%9C%E6%96%B0%E5%BA%97/jM4VEC2KSueyQU4YcviYbw?diningMode=DELIVERY",
+    menu:[
+      {name:"雞魯便當",      price:123, key:"chicken"},
+      {name:"京饌里肌便當",  price:175, key:"pork"},
+      {name:"京饌雞腿便當",  price:194, key:"drumleg"},
+      {name:"京饌招牌便當",  price:210, key:"signature"},
+    ]},
+  { name:"姊妹飯桶 北大店", icon:"🪣", rating:"4.9", eta:"29", price:"$$",
+    promo:"",
+    url:"https://www.ubereats.com/store/%E5%A7%8A%E5%A6%B9%E9%A3%AF%E6%A1%B6-%E5%8C%97%E5%A4%A7%E5%BA%97/PjM7JA_fXl-5QgVc3y-kBA?diningMode=DELIVERY",
+    menu:[
+      {name:"排骨便當",      price:170, key:"pork"},
+      {name:"蔥油雞便當",    price:164, key:"chicken"},
+      {name:"大滷腿便當",    price:184, key:"drumleg"},
+      {name:"蒜泥白肉便當",  price:150, key:"garlic"},
+    ]},
+  { name:"梁社漢排骨 關新店", icon:"🍖", rating:"4.9", eta:"22", price:"$",
+    promo:"",
+    url:"https://www.ubereats.com/store/%E6%A2%81%E7%A4%BE%E6%BC%A2%E6%8E%92%E9%AA%A8-%E6%96%B0%E7%AB%B9%E9%97%9C%E6%96%B0%E5%BA%97/vnlt2PKxS7GY8L9BdYazrw?diningMode=DELIVERY",
+    menu:[
+      {name:"炸紅糟肉飯",    price:140, key:"pork"},
+      {name:"炸雞腿飯",      price:168, key:"chicken"},
+    ]},
+  { name:"探吉飯包 北大店", icon:"🎁", rating:"4.9", eta:"35", price:"$$",
+    promo:"",
+    url:"https://www.ubereats.com/store/%E6%8E%A2%E5%90%89%E9%A3%AF%E5%8C%85-%E5%8C%97%E5%A4%A7%E5%BA%97/D09z1G8mXxuz4Zm9-z-GIQ?diningMode=DELIVERY",
+    menu:[
+      {name:"滷肉飯便當",    price:138, key:"braised"},
+      {name:"滷排骨便當",    price:158, key:"pork"},
+      {name:"炸雞腿便當",    price:188, key:"chicken"},
+      {name:"滷大雞腿便當",  price:198, key:"drumleg"},
+    ]},
 ];
 
-const KW = {"雞腿":"chicken","雞":"chicken","排骨":"pork","排":"pork",
-            "控肉":"braised","控":"braised","素食":"veg","素":"veg",
-            "鮭魚":"salmon","鮭":"salmon"};
+// 關鍵字對應 menu key
+const KW = {
+  "雞腿":"chicken","雞":"chicken","腿":"chicken",
+  "排骨":"pork","排":"pork",
+  "控肉":"braised","控":"braised","滷肉":"braised","焢肉":"braised",
+  "里肌":"pork","里肉":"pork",
+  "牛肉":"beef","牛":"beef",
+  "燒肉":"pork","燒":"pork",
+  "蝦":"shrimp","蝦捲":"shrimp",
+  "香腸":"sausage","腸":"sausage",
+  "素食":"veg","素":"veg","菜飯":"veg",
+  "招牌":"signature",
+  "蒜泥":"garlic",
+  "鯖魚":"fish","魚":"fish",
+};
 
-let shopIdx = 0, menuItems = [], order = {};
+let idx=0, items=[], ord={};
 
-window.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("quick-input").addEventListener("keydown", e => {
-    if (e.key === "Enter") parseQuick();
-  });
-  // Random shop on load
-  shopIdx = Math.floor(Math.random() * SHOPS.length);
-  displayShop(SHOPS[shopIdx]);
+window.addEventListener("DOMContentLoaded",()=>{
+  document.getElementById("qi").addEventListener("keydown",e=>{if(e.key==="Enter")parse();});
+  idx=Math.floor(Math.random()*SHOPS.length);
+  show(SHOPS[idx]);
 });
 
-function nextShop() {
-  shopIdx = (shopIdx + 1) % SHOPS.length;
-  displayShop(SHOPS[shopIdx]);
-  order = {};
-  renderOrder();
+function next(){idx=(idx+1)%SHOPS.length;show(SHOPS[idx]);ord={};renderOrder();}
+
+function show(s){
+  document.getElementById("si").textContent=s.icon;
+  document.getElementById("sn").textContent=s.name;
+  const m=document.getElementById("sm");
+  let html=`<span class="badge g">⭐ ${s.rating}</span>
+    <span class="badge o">🕐 ${s.eta}分鐘</span>
+    <span class="badge">${s.price}</span>`;
+  if(s.promo) html+=`<span class="badge p">🏷 ${s.promo}</span>`;
+  m.innerHTML=html;
+  items=s.menu; ord={}; renderMenu(); renderOrder();
 }
 
-function displayShop(s) {
-  document.getElementById("shop-icon").textContent = s.icon;
-  document.getElementById("shop-name").textContent = s.name;
-  document.getElementById("shop-rating").textContent = "⭐ " + s.rating;
-  document.getElementById("shop-time").textContent = "🕐 " + s.time;
-  document.getElementById("shop-price").textContent = s.price;
-  menuItems = s.menu;
-  order = {};
-  renderMenu();
-  renderOrder();
-}
-
-function renderMenu() {
-  document.getElementById("menu-grid").innerHTML = menuItems.map(item => `
-    <div class="menu-item" id="mi-${item.key}" onclick="toggleItem('${item.key}')">
-      <div class="item-name">${item.name}</div>
-      <div class="item-price">$${item.price}</div>
-      <div class="qty-row">
-        <button class="qty-btn" onclick="event.stopPropagation();chg('${item.key}',-1)">−</button>
-        <span class="qty-num" id="qty-${item.key}">0</span>
-        <button class="qty-btn" onclick="event.stopPropagation();chg('${item.key}',1)">+</button>
+function renderMenu(){
+  document.getElementById("mg").innerHTML=items.map(it=>`
+    <div class="mi" id="mi-${it.key}" onclick="tog('${it.key}')">
+      <div class="iname">${it.name}</div>
+      <div class="iprice">NT$${it.price}</div>
+      <div class="qrow">
+        <button class="qbtn" onclick="event.stopPropagation();chg('${it.key}',-1)">−</button>
+        <span class="qnum" id="q-${it.key}">0</span>
+        <button class="qbtn" onclick="event.stopPropagation();chg('${it.key}',1)">+</button>
       </div>
     </div>`).join("");
 }
 
-function toggleItem(k) { if (!order[k]) chg(k, 1); }
-function chg(k, d) {
-  order[k] = Math.max(0, (order[k]||0) + d);
-  const e = document.getElementById("qty-"+k);
-  if (e) e.textContent = order[k];
-  const c = document.getElementById("mi-"+k);
-  if (c) c.classList.toggle("selected", order[k] > 0);
+function tog(k){if(!ord[k])chg(k,1);}
+function chg(k,d){
+  ord[k]=Math.max(0,(ord[k]||0)+d);
+  const e=document.getElementById("q-"+k); if(e)e.textContent=ord[k];
+  const c=document.getElementById("mi-"+k); if(c)c.classList.toggle("sel",ord[k]>0);
   renderOrder();
 }
 
-function parseQuick() {
-  const raw = document.getElementById("quick-input").value.trim();
-  if (!raw) return;
-  const tokens = [...raw.matchAll(/(\d+)\s*([^\d\s]+)|([^\d\s]+)\s*(\d+)/g)];
-  let found = false;
-  for (const m of tokens) {
-    const qty = parseInt(m[1]||m[4]);
-    const word = (m[2]||m[3]||"").trim();
-    if (!qty || !word) continue;
-    let key = null;
-    for (const item of menuItems) {
-      if (item.name.includes(word) || word.includes(item.name.replace("便當",""))) { key=item.key; break; }
-    }
-    if (!key) { for (const [kw,k] of Object.entries(KW)) { if (word.includes(kw)) { key=k; break; } } }
-    if (!key) {
-      key = "custom_"+word;
-      if (!menuItems.find(x=>x.key===key)) { menuItems.push({name:word+"便當",price:90,key}); renderMenu(); }
-    }
-    order[key] = (order[key]||0) + qty;
-    found = true;
+function parse(){
+  const raw=document.getElementById("qi").value.trim(); if(!raw)return;
+  const toks=[...raw.matchAll(/(\d+)\s*([^\d\s]+)|([^\d\s]+)\s*(\d+)/g)];
+  let found=false;
+  for(const m of toks){
+    const qty=parseInt(m[1]||m[4]); const word=(m[2]||m[3]||"").trim();
+    if(!qty||!word)continue;
+    let key=null;
+    for(const it of items){if(it.name.includes(word)||word.includes(it.name.replace(/便當|飯|弁当/g,""))){key=it.key;break;}}
+    if(!key){for(const [kw,k2] of Object.entries(KW)){if(word.includes(kw)){key=k2;break;}}}
+    if(!key){key="c_"+word;if(!items.find(x=>x.key===key)){items.push({name:word,price:120,key});renderMenu();}}
+    ord[key]=(ord[key]||0)+qty; found=true;
   }
-  if (found) {
-    menuItems.forEach(item => {
-      const e=document.getElementById("qty-"+item.key); if(e) e.textContent=order[item.key]||0;
-      const c=document.getElementById("mi-"+item.key); if(c) c.classList.toggle("selected",(order[item.key]||0)>0);
+  if(found){
+    items.forEach(it=>{
+      const e=document.getElementById("q-"+it.key);if(e)e.textContent=ord[it.key]||0;
+      const c=document.getElementById("mi-"+it.key);if(c)c.classList.toggle("sel",(ord[it.key]||0)>0);
     });
-    renderOrder();
-    document.getElementById("quick-input").value="";
-    showToast("✅ 已加入訂單！");
-  } else { showToast("⚠️ 格式：1雞腿 2排骨"); }
+    renderOrder(); document.getElementById("qi").value=""; toast("✅ 已加入訂單！");
+  }else{toast("⚠️ 格式：1雞腿 2排骨");}
 }
 
-function renderOrder() {
-  const rows=document.getElementById("order-rows"), tot=document.getElementById("order-total"), btn=document.getElementById("order-btn");
-  const items=menuItems.filter(i=>order[i.key]>0);
-  if (!items.length) {
-    rows.innerHTML='<div class="empty">尚未選擇餐點 — 點菜單或輸入快速點餐</div>';
-    tot.style.display="none"; btn.disabled=true; btn.textContent="選擇餐點後下單"; return;
-  }
+function renderOrder(){
+  const rows=document.getElementById("or"),tot=document.getElementById("ot"),btn=document.getElementById("obtn");
+  const its=items.filter(i=>ord[i.key]>0);
+  if(!its.length){rows.innerHTML='<div class="empty">尚未選擇餐點 — 點菜單或輸入快速點餐</div>';
+    tot.style.display="none";btn.disabled=true;btn.textContent="選擇餐點後下單";return;}
   let total=0;
-  rows.innerHTML=items.map(item=>{const sub=item.price*order[item.key];total+=sub;
-    return `<div class="order-row"><span>${item.name} ×${order[item.key]}</span><span>$${sub}</span></div>`;
+  rows.innerHTML=its.map(it=>{const s=it.price*ord[it.key];total+=s;
+    return `<div class="orow"><span>${it.name} ×${ord[it.key]}</span><span>NT$${s}</span></div>`;
   }).join("");
-  document.getElementById("total-price").textContent="$"+total;
+  document.getElementById("tp").textContent="NT$"+total;
   tot.style.display="flex"; btn.disabled=false;
-  btn.textContent=`🛒 前往 Uber Eats 下單 — $${total}`;
+  btn.textContent=`🛒 前往 Uber Eats 下單 — NT$${total}`;
 }
 
-function placeOrder() {
-  const shop = SHOPS[shopIdx];
-  window.open(shop.url, "_blank");
-  showToast("🍱 已開啟 "+shop.name+"！");
+function order(){
+  window.open(SHOPS[idx].url,"_blank");
+  toast("🍱 已開啟 "+SHOPS[idx].name+"！");
 }
 
-function showToast(msg) {
+function toast(msg){
   const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
   setTimeout(()=>t.classList.remove("show"),2200);
 }
