@@ -34,10 +34,6 @@ header h1{font-size:20px;font-weight:800}
 .qbtn{width:26px;height:26px;border-radius:50%;border:2px solid var(--g);background:white;color:var(--g);font-size:17px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .qbtn:active{background:var(--g);color:white}
 .qnum{font-size:15px;font-weight:800;min-width:18px;text-align:center}
-.qrow2{display:flex;gap:8px}
-#qi{flex:1;border:2px solid #E0E0E0;border-radius:12px;padding:11px 14px;font-size:16px;outline:none;font-family:inherit;transition:border-color .2s}
-#qi:focus{border-color:var(--g)}
-#pb{background:var(--g);color:white;border:none;border-radius:12px;padding:11px 16px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
 .ocard{background:var(--card);border-radius:var(--r);box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:hidden}
 .ohead{background:#F8F8F8;padding:10px 16px;font-size:12px;font-weight:700;color:var(--muted);border-bottom:1px solid #EEE}
 .orow{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;font-size:14px;border-bottom:1px solid #F5F5F5}
@@ -49,24 +45,22 @@ header h1{font-size:20px;font-weight:800}
 .cta{padding:12px 14px;padding-bottom:calc(12px + env(safe-area-inset-bottom));background:var(--card);box-shadow:0 -2px 10px rgba(0,0,0,.07)}
 #obtn{width:100%;background:var(--g);color:white;border:none;border-radius:16px;padding:16px;font-size:17px;font-weight:800;cursor:pointer;transition:transform .1s}
 #obtn:active{transform:scale(.98)}#obtn:disabled{background:#CCC}
-/* ── 下單 Sheet ── */
+/* Sheet */
 .sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:flex-end}
 .sheet-overlay.open{display:flex}
-.sheet{background:var(--card);border-radius:20px 20px 0 0;width:100%;padding:20px 18px;padding-bottom:calc(20px + env(safe-area-inset-bottom));max-height:85dvh;overflow-y:auto}
+.sheet{background:var(--card);border-radius:20px 20px 0 0;width:100%;padding:20px 18px;padding-bottom:calc(20px + env(safe-area-inset-bottom));max-height:88dvh;overflow-y:auto}
 .sheet-title{font-size:18px;font-weight:800;margin-bottom:4px}
-.sheet-sub{font-size:13px;color:var(--muted);margin-bottom:16px}
-.note-box{background:#F0FCF5;border:1.5px solid var(--g);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600;line-height:1.7;margin-bottom:14px;word-break:break-all}
+.sheet-sub{font-size:13px;color:var(--muted);margin-bottom:14px}
+.note-box{background:#F0FCF5;border:1.5px solid var(--g);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600;line-height:1.8;margin-bottom:14px}
 .item-btns{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
 .item-btn{display:flex;align-items:center;justify-content:space-between;background:#F8F8F8;border:none;border-radius:12px;padding:11px 14px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;color:var(--text)}
 .item-btn:active{background:#EEE}
 .item-btn-qty{background:var(--g);color:white;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:800;flex-shrink:0}
-.item-btn-arrow{color:var(--muted);font-size:16px;flex-shrink:0}
 .sheet-btns{display:flex;flex-direction:column;gap:8px}
 .sheet-btn{border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:700;cursor:pointer}
 .sheet-btn.primary{background:var(--g);color:white}
 .sheet-btn.secondary{background:#F0F0F0;color:var(--text)}
 .sheet-hint{font-size:12px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.6}
-/* toast */
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1A1A1A;color:white;padding:10px 20px;border-radius:24px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:300;white-space:nowrap}
 .toast.show{opacity:1}
 </style>
@@ -89,18 +83,11 @@ header h1{font-size:20px;font-weight:800}
   </div>
 </div>
 <div class="sec">
-  <div class="lbl" style="margin-top:10px">點選加入訂單</div>
+  <div class="lbl" style="margin-top:10px">選擇餐點</div>
   <div class="mgrid" id="mg"></div>
 </div>
-<div class="sec">
-  <div class="lbl" style="margin-top:10px">快速輸入（例：1雞腿 2排骨）</div>
-  <div class="qrow2">
-    <input id="qi" placeholder="數字＋品名，按 Enter 確認" autocomplete="off">
-    <button id="pb" onclick="parse()">確認</button>
-  </div>
-</div>
 <div class="osec">
-  <div class="lbl" style="margin-top:4px">訂單明細</div>
+  <div class="lbl" style="margin-top:12px">訂單明細</div>
   <div class="ocard">
     <div class="ohead">訂購人：戴薇玲 ／ 配送至科林研發</div>
     <div id="or"><div class="empty">尚未選擇餐點</div></div>
@@ -113,152 +100,151 @@ header h1{font-size:20px;font-weight:800}
 
 <!-- 下單 Sheet -->
 <div class="sheet-overlay" id="soverlay" onclick="closeSheet(event)">
-  <div class="sheet" id="sheet">
+  <div class="sheet">
     <div class="sheet-title">📋 訂單已複製！</div>
-    <div class="sheet-sub">點下方品項直接跳到 Uber Eats 頁面，逐一加入購物車</div>
+    <div class="sheet-sub">點品項按鈕直接跳到 Uber Eats 對應頁面，加入購物車後結帳</div>
     <div class="note-box" id="snote"></div>
     <div class="item-btns" id="sibtns"></div>
     <div class="sheet-btns">
       <button class="sheet-btn primary" id="sopen">🛒 開啟 Uber Eats 店家頁面</button>
       <button class="sheet-btn secondary" onclick="closeSheet()">取消</button>
     </div>
-    <div class="sheet-hint">💡 在 Uber Eats「加入備註」欄位貼上訂單文字<br>讓店家確認你的需求</div>
+    <div class="sheet-hint">💡 在 Uber Eats「備註給店家」欄位貼上已複製的訂單文字</div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-// ── 葷食 (Uber Eats 新竹研發二路22號，含真實 item_id) ──
 const MEAT = [
   { name:"金仙蝦捲飯", icon:"🦐", rating:"4.9", eta:"18", price:"$", promo:"",
     url:"https://www.ubereats.com/store/%E9%87%91%E4%BB%99%E8%9D%A6%E6%8D%B2%E9%A3%AF/nN0uN6K7V5WjIj_VXPmRog?diningMode=DELIVERY",
-    sid:"nN0uN6K7V5WjIj_VXPmRog",
     menu:[
-      {name:"方便菜便當",    price:120, key:"veg",     iid:"38296066-dca9-480c-aaa7-d9ec8ff49dcc"},
-      {name:"滷肉飯便當",    price:130, key:"braised", iid:"c4b861f4-a8d4-40d1-8287-443973ea3c2b"},
-      {name:"雞腿蝦捲雙拼", price:238, key:"chicken", iid:"1f44efe3-2c9c-42d4-96c0-6b376ab83471"},
-      {name:"雞腿雙拼香腸", price:256, key:"sausage", iid:"915e8f0c-cd85-4669-b459-cc709c3467a8"},
+      {name:"方便菜便當",    price:120, key:"a", iid:"38296066-dca9-480c-aaa7-d9ec8ff49dcc"},
+      {name:"滷肉飯便當",    price:130, key:"b", iid:"c4b861f4-a8d4-40d1-8287-443973ea3c2b"},
+      {name:"雞腿蝦捲雙拼", price:238, key:"c", iid:"1f44efe3-2c9c-42d4-96c0-6b376ab83471"},
+      {name:"雞腿雙拼香腸", price:256, key:"d", iid:"915e8f0c-cd85-4669-b459-cc709c3467a8"},
+      {name:"招牌蝦捲飯",   price:150, key:"e", iid:null},
+      {name:"蝦捲套餐",     price:188, key:"f", iid:null},
     ]},
   { name:"吃霸快餐便當", icon:"🥡", rating:"4.9", eta:"21", price:"$", promo:"",
     url:"https://www.ubereats.com/store/%E5%90%83%E9%9C%B8%E5%BF%AB%E9%A4%90%E4%BE%BF%E7%95%B6/j0Cr1tP1XPSlDxQFZ18fag?diningMode=DELIVERY",
-    sid:"j0Cr1tP1XPSlDxQFZ18fag",
     menu:[
-      {name:"菜飯便當",     price:108, key:"veg",     iid:"8bd36301-07d3-4ee0-97b6-0d8ceb75e00f"},
-      {name:"排骨飯便當",   price:141, key:"pork",    iid:"2b2b9ca1-60b2-4952-99d8-3baaf85463b6"},
-      {name:"霸雞腿飯便當", price:161, key:"chicken", iid:"e1b18514-7016-4efa-be76-d6d44f459b70"},
-      {name:"控肉飯便當",   price:141, key:"braised", iid:"d597af3b-f538-487a-b895-a9117920a157"},
-      {name:"蝦捲飯便當",   price:121, key:"shrimp",  iid:"248e5e05-3212-483b-8863-8d0f6025c458"},
+      {name:"菜飯便當",       price:108, key:"a", iid:"8bd36301-07d3-4ee0-97b6-0d8ceb75e00f"},
+      {name:"排骨飯便當",     price:141, key:"b", iid:"2b2b9ca1-60b2-4952-99d8-3baaf85463b6"},
+      {name:"霸雞腿飯便當",   price:161, key:"c", iid:"e1b18514-7016-4efa-be76-d6d44f459b70"},
+      {name:"控肉飯便當",     price:141, key:"d", iid:"d597af3b-f538-487a-b895-a9117920a157"},
+      {name:"蝦捲飯便當",     price:121, key:"e", iid:"248e5e05-3212-483b-8863-8d0f6025c458"},
+      {name:"滷大雞腿飯便當", price:161, key:"f", iid:"41912389-2865-4c18-a5fe-27d1b362106d"},
     ]},
   { name:"八廚職人弁当 科園店", icon:"🍱", rating:"4.9", eta:"22", price:"$$", promo:"買一送一",
     url:"https://www.ubereats.com/store/%E5%85%AB%E5%BB%9A%E8%81%B7%E4%BA%BA%E5%BC%81%E5%BD%93-%E6%96%B0%E7%AB%B9%E7%A7%91%E5%9C%92%E5%BA%97/VWmvoxZNXh-mM5PIui_PNA?diningMode=DELIVERY",
-    sid:"VWmvoxZNXh-mM5PIui_PNA",
     menu:[
-      {name:"招牌燒肉弁当", price:145, key:"pork",    iid:"06f5e46d-3bc4-40fd-b0eb-f123bf54a5bb"},
-      {name:"照燒雞腿弁当", price:165, key:"chicken", iid:"7ba55ae1-4c8a-4c8f-99a2-32454a7fdcb7"},
-      {name:"厚燒排骨弁当", price:175, key:"ribs",    iid:"986eed9f-099b-49df-96b6-b18feb606709"},
-      {name:"和風牛肉弁当", price:175, key:"beef",    iid:"c21c3740-ea1d-4c16-aca3-44fb058bea31"},
+      {name:"招牌燒肉弁当", price:145, key:"a", iid:"06f5e46d-3bc4-40fd-b0eb-f123bf54a5bb"},
+      {name:"照燒雞腿弁当", price:165, key:"b", iid:"7ba55ae1-4c8a-4c8f-99a2-32454a7fdcb7"},
+      {name:"厚燒排骨弁当", price:175, key:"c", iid:"986eed9f-099b-49df-96b6-b18feb606709"},
+      {name:"和風牛肉弁当", price:175, key:"d", iid:"c21c3740-ea1d-4c16-aca3-44fb058bea31"},
+      {name:"鮭魚弁当",     price:175, key:"e", iid:null},
+      {name:"季節限定弁当", price:185, key:"f", iid:null},
     ]},
   { name:"鬍鬚張 新竹關新店", icon:"🧔", rating:"4.9", eta:"22", price:"$$", promo:"指定品項折$25",
     url:"https://www.ubereats.com/store/%E9%AC%8D%E9%AC%9A%E5%BC%B5-%E6%96%B0%E7%AB%B9%E9%97%9C%E6%96%B0%E5%BA%97/jM4VEC2KSueyQU4YcviYbw?diningMode=DELIVERY",
-    sid:"jM4VEC2KSueyQU4YcviYbw",
     menu:[
-      {name:"雞魯便當",     price:123, key:"chicken",  iid:"afd18046-2808-4012-8934-a5154675df93"},
-      {name:"京饌里肌便當", price:175, key:"pork",     iid:"c783f702-da37-43ef-9c1c-5aaad9e034b4"},
-      {name:"京饌雞腿便當", price:194, key:"drumleg",  iid:"360dacc2-88fa-408b-bdac-ca7021954e90"},
-      {name:"京饌招牌便當", price:210, key:"signature",iid:"d1458f14-d1f9-4b51-9691-a79364c21b76"},
+      {name:"雞魯便當",       price:123, key:"a", iid:"afd18046-2808-4012-8934-a5154675df93"},
+      {name:"京饌里肌便當",   price:175, key:"b", iid:"c783f702-da37-43ef-9c1c-5aaad9e034b4"},
+      {name:"京饌雞腿便當",   price:194, key:"c", iid:"360dacc2-88fa-408b-bdac-ca7021954e90"},
+      {name:"京饌蹄膀便當",   price:191, key:"d", iid:"d38f684c-f30b-4c34-935d-aa81bbb72ce9"},
+      {name:"京饌招牌便當",   price:210, key:"e", iid:"d1458f14-d1f9-4b51-9691-a79364c21b76"},
+      {name:"滷肉飯便當",     price:105, key:"f", iid:null},
     ]},
   { name:"姊妹飯桶 北大店", icon:"🪣", rating:"4.9", eta:"29", price:"$$", promo:"",
     url:"https://www.ubereats.com/store/%E5%A7%8A%E5%A6%B9%E9%A3%AF%E6%A1%B6-%E5%8C%97%E5%A4%A7%E5%BA%97/PjM7JA_fXl-5QgVc3y-kBA?diningMode=DELIVERY",
-    sid:"PjM7JA_fXl-5QgVc3y-kBA",
     menu:[
-      {name:"排骨便當",     price:170, key:"pork",    iid:"625098ff-fd6f-45e6-8272-597ba87f78e4"},
-      {name:"蔥油雞便當",   price:164, key:"chicken", iid:"98c19a67-9df8-4e0c-a2de-00c9fc53f00d"},
-      {name:"大滷腿便當",   price:184, key:"drumleg", iid:"b80ea029-2586-4110-9d3c-4a50604342b2"},
-      {name:"蒜泥白肉便當", price:150, key:"garlic",  iid:"033114ae-cf6e-4473-b8d4-c150604342b2"},
+      {name:"排骨便當",     price:170, key:"a", iid:"625098ff-fd6f-45e6-8272-597ba87f78e4"},
+      {name:"蔥油雞便當",   price:164, key:"b", iid:"98c19a67-9df8-4e0c-a2de-00c9fc53f00d"},
+      {name:"大滷腿便當",   price:184, key:"c", iid:"b80ea029-2586-4110-9d3c-4a50604342b2"},
+      {name:"蒜泥白肉便當", price:150, key:"d", iid:"033114ae-cf6e-4473-b8d4-c150604342b2"},
+      {name:"蝦捲飯便當",   price:150, key:"e", iid:"fbc5f787-3871-4078-a77a-497e75aebc6d"},
+      {name:"紅燒肉便當",   price:175, key:"f", iid:null},
     ]},
   { name:"梁社漢排骨 關新店", icon:"🍖", rating:"4.9", eta:"22", price:"$", promo:"",
     url:"https://www.ubereats.com/store/%E6%A2%81%E7%A4%BE%E6%BC%A2%E6%8E%92%E9%AA%A8-%E6%96%B0%E7%AB%B9%E9%97%9C%E6%96%B0%E5%BA%97/vnlt2PKxS7GY8L9BdYazrw?diningMode=DELIVERY",
-    sid:"vnlt2PKxS7GY8L9BdYazrw",
     menu:[
-      {name:"炸紅糟肉飯", price:140, key:"pork",    iid:"7516fbf5-d42c-4fab-a52d-5135ad817d4d"},
-      {name:"炸雞腿飯",   price:168, key:"chicken", iid:"92d939e3-722e-4c5b-b4f0-cdf5f0524398"},
+      {name:"炸紅糟肉飯", price:140, key:"a", iid:"7516fbf5-d42c-4fab-a52d-5135ad817d4d"},
+      {name:"炸雞腿飯",   price:168, key:"b", iid:"92d939e3-722e-4c5b-b4f0-cdf5f0524398"},
+      {name:"排骨飯",     price:145, key:"c", iid:null},
+      {name:"控肉飯",     price:135, key:"d", iid:null},
+      {name:"魯肉飯",     price:110, key:"e", iid:null},
+      {name:"鯖魚飯",     price:145, key:"f", iid:null},
     ]},
   { name:"探吉飯包 北大店", icon:"🎁", rating:"4.9", eta:"35", price:"$$", promo:"",
     url:"https://www.ubereats.com/store/%E6%8E%A2%E5%90%89%E9%A3%AF%E5%8C%85-%E5%8C%97%E5%A4%A7%E5%BA%97/D09z1G8mXxuz4Zm9-z-GIQ?diningMode=DELIVERY",
-    sid:"D09z1G8mXxuz4Zm9-z-GIQ",
     menu:[
-      {name:"滷肉飯便當",   price:138, key:"braised", iid:"f5a4ebc4-3912-4efa-a272-b7e4b21f424a"},
-      {name:"滷排骨便當",   price:158, key:"pork",    iid:"1f3c9312-a9b8-4805-81f2-163730cf558b"},
-      {name:"炸雞腿便當",   price:188, key:"chicken", iid:"b44b71e1-7790-47e9-8da9-9e3cce77cf42"},
-      {name:"滷大雞腿便當", price:198, key:"drumleg", iid:"7ea9ad4b-30d6-4915-b055-dbad0a8568be"},
+      {name:"滷肉飯便當",   price:138, key:"a", iid:"f5a4ebc4-3912-4efa-a272-b7e4b21f424a"},
+      {name:"滷排骨便當",   price:158, key:"b", iid:"1f3c9312-a9b8-4805-81f2-163730cf558b"},
+      {name:"炸雞腿便當",   price:188, key:"c", iid:"b44b71e1-7790-47e9-8da9-9e3cce77cf42"},
+      {name:"滷大雞腿便當", price:198, key:"d", iid:"7ea9ad4b-30d6-4915-b055-dbad0a8568be"},
+      {name:"糖醋里肌便當", price:158, key:"e", iid:"5ff86600-3750-457f-a877-d03c057340e7"},
+      {name:"魚香茄子便當", price:155, key:"f", iid:null},
     ]},
 ];
 
-// ── 素食 ──
 const VEG = [
   { name:"素食園", icon:"🥬", rating:"4.9", eta:"12", price:"$", promo:"", veg:true,
     url:"https://www.ubereats.com/store/%E7%B4%A0%E9%A3%9F%E5%9C%92/fZlOtxW2QkWupta4Ja9VfQ?diningMode=DELIVERY",
-    sid:"fZlOtxW2QkWupta4Ja9VfQ",
     menu:[
-      {name:"素魯飯",   price:60,  key:"rice",     iid:"c283f2d4-0b1c-4d73-bed5-3d273e7743a7"},
-      {name:"素香羹飯", price:60,  key:"soup_rice",iid:"28e91165-4f31-4c8f-93e6-23a12dcb7d00"},
-      {name:"經濟餐盒", price:100, key:"box",      iid:"72f5117e-81b9-410e-a893-a00d82739d09"},
+      {name:"素魯飯",   price:60,  key:"a", iid:"c283f2d4-0b1c-4d73-bed5-3d273e7743a7"},
+      {name:"素香羹飯", price:60,  key:"b", iid:"28e91165-4f31-4c8f-93e6-23a12dcb7d00"},
+      {name:"素香羹麵", price:60,  key:"c", iid:"56c7cc4e-b838-4214-9d32-b281caf636d2"},
+      {name:"經濟餐盒", price:100, key:"d", iid:"72f5117e-81b9-410e-a893-a00d82739d09"},
+      {name:"素炒飯",   price:70,  key:"e", iid:null},
+      {name:"素食便當", price:90,  key:"f", iid:null},
     ]},
   { name:"清大商圈 一鮮素蔬食", icon:"🌱", rating:"4.9", eta:"24", price:"$$", promo:"", veg:true,
     url:"https://www.ubereats.com/store/%E6%B8%85%E5%A4%A7%E5%95%86%E5%9C%88-%E4%B8%80%E9%AE%AE%E7%B4%A0%E8%94%AC%E9%A3%9F/lQq1_5rkWmmszIyX15WfVQ?diningMode=DELIVERY",
-    sid:"lQq1_5rkWmmszIyX15WfVQ",
     menu:[
-      {name:"三杯素雞飯", price:170, key:"chicken", iid:"fb8ac519-9c40-424c-b289-4c4cb0ed13c9"},
-      {name:"香酥素排飯", price:170, key:"ribs",    iid:"4c0d855e-2fda-4309-a2ac-ae7be5cf9d52"},
-      {name:"三寶飯",     price:170, key:"combo",   iid:"b0868384-7950-4059-8609-a6c7fc3e2ecb"},
-      {name:"鐵板猴菇排", price:300, key:"mushroom",iid:"cf7d1880-6d9e-424d-8328-ae63c16bc04e"},
+      {name:"三杯素雞飯", price:170, key:"a", iid:"fb8ac519-9c40-424c-b289-4c4cb0ed13c9"},
+      {name:"香酥素排飯", price:170, key:"b", iid:"4c0d855e-2fda-4309-a2ac-ae7be5cf9d52"},
+      {name:"三寶飯",     price:170, key:"c", iid:"b0868384-7950-4059-8609-a6c7fc3e2ecb"},
+      {name:"鐵板猴菇排", price:300, key:"d", iid:"cf7d1880-6d9e-424d-8328-ae63c16bc04e"},
+      {name:"素魚排飯",   price:170, key:"e", iid:null},
+      {name:"宮保素雞飯", price:170, key:"f", iid:null},
     ]},
   { name:"蔬果子蔬食料理 新竹店", icon:"🥦", rating:"4.9", eta:"25", price:"$", promo:"買一送一", veg:true,
     url:"https://www.ubereats.com/store/%E8%94%AC%E6%9E%9C%E5%AD%90%E8%94%AC%E9%A3%9F%E6%96%99%E7%90%86-%E6%96%B0%E7%AB%B9%E5%BA%97/aNux0GnlU_2CgkpphQJ-qQ?diningMode=DELIVERY",
-    sid:"aNux0GnlU_2CgkpphQJ-qQ",
     menu:[
-      {name:"酥炸素排飯",   price:100, key:"ribs",    iid:"b096e424-43c9-4158-9043-56fd6259fadf"},
-      {name:"炸素排",       price:50,  key:"fried",   iid:"ab2acd16-fe01-45c4-8e7e-03b00079d955"},
-      {name:"蔬饌九宮格便當",price:350, key:"premium", iid:"ac862968-493f-4840-9b61-59a60c8b0b3f"},
+      {name:"酥炸素排飯",    price:100, key:"a", iid:"b096e424-43c9-4158-9043-56fd6259fadf"},
+      {name:"蔬饌九宮格便當",price:350, key:"b", iid:"ac862968-493f-4840-9b61-59a60c8b0b3f"},
+      {name:"素食便當",      price:90,  key:"c", iid:null},
+      {name:"素排飯",        price:100, key:"d", iid:null},
+      {name:"綜合素食便當",  price:120, key:"e", iid:null},
+      {name:"素羹飯",        price:80,  key:"f", iid:null},
     ]},
   { name:"棗子樹素食店", icon:"🌿", rating:"4.9", eta:"23", price:"$", promo:"", veg:true,
     url:"https://www.ubereats.com/store/%E6%A3%97%E5%AD%90%E6%A8%B9%E7%B4%A0%E9%A3%9F%E5%BA%97/7a5_5WXMTua7HT7w3HtFrQ?diningMode=DELIVERY",
-    sid:"7a5_5WXMTua7HT7w3HtFrQ",
     menu:[
-      {name:"素魯飯便當",     price:80, key:"rice",iid:"328197a4-e663-4e9d-aa57-219c68413171"},
-      {name:"黑胡椒香酥排便當",price:85, key:"ribs",iid:"3726e8f1-51c0-4149-aad1-a25807c86243"},
+      {name:"素魯飯便當",      price:80, key:"a", iid:"328197a4-e663-4e9d-aa57-219c68413171"},
+      {name:"黑胡椒香酥排便當",price:85, key:"b", iid:"3726e8f1-51c0-4149-aad1-a25807c86243"},
+      {name:"素魯飯",          price:55, key:"c", iid:"bf69a469-003e-4df3-a7b2-29ca3a1605db"},
+      {name:"素炒麵",          price:70, key:"d", iid:null},
+      {name:"什錦素食便當",    price:90, key:"e", iid:null},
+      {name:"素食炒飯",        price:75, key:"f", iid:null},
     ]},
   { name:"德緣素膳坊", icon:"☸️", rating:"4.9", eta:"28", price:"$$", promo:"", veg:true,
     url:"https://www.ubereats.com/store/%E5%BE%B7%E7%B7%A3%E7%B4%A0%E8%86%B3%E5%9D%8A/cwcJDaO4XjC3Q-62JarRiw?diningMode=DELIVERY",
-    sid:"cwcJDaO4XjC3Q-62JarRiw",
     menu:[
-      {name:"純素主廚便當", price:160, key:"chef",   iid:"a7b464cf-23ee-4e99-8d61-7b64c938d4b9"},
-      {name:"蛋奶素主廚便當",price:160, key:"egg",    iid:"903cab68-effd-4c74-ba80-303c6b7b2db7"},
-      {name:"純素御膳便當", price:240, key:"premium",iid:"31ae9ee8-40e2-46c0-a3d5-a92e00a0cfb1"},
-      {name:"五菜米粉便當", price:170, key:"noodle", iid:"e64c42a5-eb9f-4eee-b648-d1bb0b11637a"},
+      {name:"純素主廚便當",  price:160, key:"a", iid:"a7b464cf-23ee-4e99-8d61-7b64c938d4b9"},
+      {name:"蛋奶素主廚便當",price:160, key:"b", iid:"903cab68-effd-4c74-ba80-303c6b7b2db7"},
+      {name:"純素御膳便當",  price:240, key:"c", iid:"31ae9ee8-40e2-46c0-a3d5-a92e00a0cfb1"},
+      {name:"五菜米粉便當",  price:170, key:"d", iid:"e64c42a5-eb9f-4eee-b648-d1bb0b11637a"},
+      {name:"素食套餐",      price:150, key:"e", iid:null},
+      {name:"素食經典便當",  price:140, key:"f", iid:null},
     ]},
 ];
-
-const KW_MEAT={
-  "雞腿":"chicken","腿":"chicken","雞":"chicken",
-  "排骨":"pork","排":"pork","里肌":"pork",
-  "控肉":"braised","控":"braised","滷肉":"braised","焢肉":"braised",
-  "牛肉":"beef","牛":"beef","燒肉":"pork",
-  "蝦":"shrimp","蝦捲":"shrimp","香腸":"sausage",
-  "素食":"veg","素":"veg","菜飯":"veg",
-};
-const KW_VEG={
-  "素雞":"chicken","素排":"ribs","素魯":"rice","魯飯":"rice",
-  "猴菇":"mushroom","菇":"mushroom","三寶":"combo",
-  "主廚":"chef","御膳":"premium","米粉":"noodle","經濟":"box","餐盒":"box",
-};
 
 let tab="meat", lists={meat:MEAT, veg:VEG}, idx={meat:0, veg:0};
 let items=[], ord={};
 
 window.addEventListener("DOMContentLoaded",()=>{
-  document.getElementById("qi").addEventListener("keydown",e=>{if(e.key==="Enter")parse();});
   idx.meat=Math.floor(Math.random()*MEAT.length);
   idx.veg=Math.floor(Math.random()*VEG.length);
   show(lists[tab][idx[tab]]);
@@ -308,33 +294,10 @@ function chg(k,d){
   renderOrder();
 }
 
-function parse(){
-  const raw=document.getElementById("qi").value.trim(); if(!raw)return;
-  const kw=tab==="veg"?KW_VEG:KW_MEAT;
-  const toks=[...raw.matchAll(/(\d+)\s*([^\d\s]+)|([^\d\s]+)\s*(\d+)/g)];
-  let found=false;
-  for(const m of toks){
-    const qty=parseInt(m[1]||m[4]); const word=(m[2]||m[3]||"").trim();
-    if(!qty||!word)continue;
-    let key=null;
-    for(const it of items){if(it.name.includes(word)||word.includes(it.name.replace(/便當|飯|弁当|素/g,""))){key=it.key;break;}}
-    if(!key){for(const [k2,v] of Object.entries(kw)){if(word.includes(k2)){key=v;break;}}}
-    if(!key){key="c_"+word;if(!items.find(x=>x.key===key)){items.push({name:word,price:100,key,iid:null});renderMenu();}}
-    ord[key]=(ord[key]||0)+qty; found=true;
-  }
-  if(found){
-    items.forEach(it=>{
-      const e=document.getElementById("q-"+it.key);if(e)e.textContent=ord[it.key]||0;
-      const c=document.getElementById("mi-"+it.key);if(c)c.classList.toggle("sel",(ord[it.key]||0)>0);
-    });
-    renderOrder(); document.getElementById("qi").value=""; toast("✅ 已加入！");
-  }else{toast("⚠️ 格式：1雞腿 2排骨");}
-}
-
 function renderOrder(){
   const rows=document.getElementById("or"),tot=document.getElementById("ot"),btn=document.getElementById("obtn");
   const its=items.filter(i=>ord[i.key]>0);
-  if(!its.length){rows.innerHTML='<div class="empty">尚未選擇餐點 — 點菜單或輸入快速點餐</div>';
+  if(!its.length){rows.innerHTML='<div class="empty">點上方菜單選擇餐點</div>';
     tot.style.display="none";btn.disabled=true;btn.textContent="選擇餐點後下單";return;}
   let total=0;
   rows.innerHTML=its.map(it=>{const s=it.price*ord[it.key];total+=s;
@@ -342,29 +305,21 @@ function renderOrder(){
   }).join("");
   document.getElementById("tp").textContent="NT$"+total;
   tot.style.display="flex"; btn.disabled=false;
-  const t=its.reduce((s,i)=>s+i.price*ord[i.key],0);
-  btn.textContent=`🛒 確認並前往下單 — NT$${t}`;
+  btn.textContent=`🛒 確認並前往下單 — NT$${total}`;
 }
 
-// ── 下單：複製 + 顯示 sheet ──
 function placeOrder(){
   const shop=lists[tab][idx[tab]];
   const its=items.filter(i=>ord[i.key]>0);
   if(!its.length)return;
-
-  // 格式化訂單文字
   const orderText=its.map(i=>`${i.name} ×${ord[i.key]}`).join('\n');
   const total=its.reduce((s,i)=>s+i.price*ord[i.key],0);
-
-  // 複製到剪貼簿
   navigator.clipboard.writeText(orderText).catch(()=>{});
 
-  // 填入 sheet
   document.getElementById("snote").innerHTML=
-    its.map(i=>`${i.name} <strong>×${ord[i.key]}</strong>`).join('<br>') +
+    its.map(i=>`${i.name} <strong>×${ord[i.key]}</strong>`).join('<br>')+
     `<br><span style="color:var(--gd)">合計 NT$${total}</span>`;
 
-  // 品項按鈕（直接跳品項頁面）
   const slug=shop.url.split('/store/')[1].split('?')[0];
   document.getElementById("sibtns").innerHTML=its.map(it=>{
     const url=it.iid
@@ -374,21 +329,17 @@ function placeOrder(){
       <span>${it.name}</span>
       <span style="display:flex;align-items:center;gap:6px">
         <span class="item-btn-qty">×${ord[it.key]}</span>
-        <span class="item-btn-arrow">→</span>
-      </span>
-    </a>`;
+        <span style="color:var(--muted)">→</span>
+      </span></a>`;
   }).join('');
 
-  // 店家頁面按鈕
-  document.getElementById("sopen").onclick=()=>{ window.open(shop.url,"_blank"); };
-
+  document.getElementById("sopen").onclick=()=>window.open(shop.url,"_blank");
   document.getElementById("soverlay").classList.add("open");
 }
 
 function closeSheet(e){
-  if(!e||e.target===document.getElementById("soverlay")){
+  if(!e||e.target===document.getElementById("soverlay"))
     document.getElementById("soverlay").classList.remove("open");
-  }
 }
 
 function toast(msg){
