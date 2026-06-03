@@ -11,6 +11,10 @@ body{font-family:-apple-system,"PingFang TC",sans-serif;background:var(--bg);col
 header{background:var(--g);color:white;padding:14px 18px;padding-top:calc(14px + env(safe-area-inset-top));display:flex;align-items:center;justify-content:space-between}
 header h1{font-size:20px;font-weight:800}
 .chip{background:rgba(255,255,255,.2);border-radius:20px;padding:4px 10px;font-size:12px}
+/* Tab bar */
+.tabs{display:flex;background:var(--card);border-bottom:2px solid #EEE}
+.tab{flex:1;padding:12px;text-align:center;font-size:15px;font-weight:700;cursor:pointer;border:none;background:none;color:var(--muted);transition:color .15s}
+.tab.active{color:var(--g);border-bottom:3px solid var(--g);margin-bottom:-2px}
 .sec{padding:12px 14px 0}
 .lbl{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
 .shop-card{background:var(--card);border-radius:var(--r);padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,.08);display:flex;align-items:center;gap:12px}
@@ -22,6 +26,7 @@ header h1{font-size:20px;font-weight:800}
 .badge.g{background:#E6F9F0;color:var(--gd)}
 .badge.o{background:#FFF3E0;color:#E65100}
 .badge.p{background:#FFF0F0;color:#C62828}
+.badge.v{background:#F3E5F5;color:#7B1FA2}
 #rbtn{background:var(--g);color:white;border:none;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .mi{background:var(--card);border-radius:var(--r);padding:12px;box-shadow:0 2px 6px rgba(0,0,0,.07);display:flex;flex-direction:column;gap:4px;border:2.5px solid transparent;cursor:pointer;transition:border-color .15s,transform .1s;user-select:none}
@@ -59,8 +64,14 @@ header h1{font-size:20px;font-weight:800}
   <div class="chip">📍 研發二路22號</div>
 </header>
 
+<!-- 葷/素 切換 -->
+<div class="tabs">
+  <button class="tab active" id="tab-meat" onclick="switchTab('meat')">🥩 葷食</button>
+  <button class="tab" id="tab-veg"  onclick="switchTab('veg')">🌿 素食</button>
+</div>
+
 <div class="sec">
-  <div class="lbl">今日推薦店家（Uber Eats 新竹即時）</div>
+  <div class="lbl" id="shop-lbl">今日推薦（Uber Eats 新竹即時）</div>
   <div class="shop-card">
     <div class="shop-icon" id="si">🍱</div>
     <div class="shop-info">
@@ -94,113 +105,116 @@ header h1{font-size:20px;font-weight:800}
 </div>
 
 <div class="cta">
-  <button id="obtn" disabled onclick="order()">選擇餐點後下單</button>
+  <button id="obtn" disabled onclick="placeOrder()">選擇餐點後下單</button>
 </div>
 <div class="toast" id="toast"></div>
 
 <script>
-// ── 真實 Uber Eats 資料（新竹研發二路22號，即時搜尋結果）──
-const SHOPS = [
-  { name:"金仙蝦捲飯", icon:"🦐", rating:"4.9", eta:"18", price:"$",
-    promo:"",
+// ── 葷食（Uber Eats 新竹研發二路22號 即時資料）──
+const MEAT = [
+  { name:"金仙蝦捲飯", icon:"🦐", rating:"4.9", eta:"18", price:"$", promo:"",
     url:"https://www.ubereats.com/store/%E9%87%91%E4%BB%99%E8%9D%A6%E6%8D%B2%E9%A3%AF/nN0uN6K7V5WjIj_VXPmRog?diningMode=DELIVERY",
-    menu:[
-      {name:"滷肉飯便當",    price:130, key:"braised"},
-      {name:"方便菜便當",    price:120, key:"veg"},
-      {name:"雞腿蝦捲雙拼", price:238, key:"chicken"},
-      {name:"雞腿雙拼香腸", price:256, key:"sausage"},
-    ]},
-  { name:"吃霸快餐便當", icon:"🥡", rating:"4.9", eta:"21", price:"$",
-    promo:"",
+    menu:[{name:"方便菜便當",price:120,key:"veg"},{name:"滷肉飯便當",price:130,key:"braised"},
+          {name:"雞腿蝦捲雙拼",price:238,key:"chicken"},{name:"雞腿雙拼香腸",price:256,key:"sausage"}]},
+  { name:"吃霸快餐便當", icon:"🥡", rating:"4.9", eta:"21", price:"$", promo:"",
     url:"https://www.ubereats.com/store/%E5%90%83%E9%9C%B8%E5%BF%AB%E9%A4%90%E4%BE%BF%E7%95%B6/j0Cr1tP1XPSlDxQFZ18fag?diningMode=DELIVERY",
-    menu:[
-      {name:"菜飯便當",      price:108, key:"veg"},
-      {name:"排骨飯便當",    price:141, key:"pork"},
-      {name:"霸雞腿飯便當",  price:161, key:"chicken"},
-      {name:"控肉飯便當",    price:141, key:"braised"},
-      {name:"蝦捲飯便當",    price:121, key:"shrimp"},
-    ]},
-  { name:"八廚職人弁当 科園店", icon:"🍱", rating:"4.9", eta:"22", price:"$$",
-    promo:"買一送一",
+    menu:[{name:"菜飯便當",price:108,key:"veg"},{name:"排骨飯便當",price:141,key:"pork"},
+          {name:"霸雞腿飯便當",price:161,key:"chicken"},{name:"控肉飯便當",price:141,key:"braised"},
+          {name:"蝦捲飯便當",price:121,key:"shrimp"}]},
+  { name:"八廚職人弁当 科園店", icon:"🍱", rating:"4.9", eta:"22", price:"$$", promo:"買一送一",
     url:"https://www.ubereats.com/store/%E5%85%AB%E5%BB%9A%E8%81%B7%E4%BA%BA%E5%BC%81%E5%BD%93-%E6%96%B0%E7%AB%B9%E7%A7%91%E5%9C%92%E5%BA%97/VWmvoxZNXh-mM5PIui_PNA?diningMode=DELIVERY",
-    menu:[
-      {name:"招牌燒肉弁当",  price:145, key:"pork"},
-      {name:"照燒雞腿弁当",  price:165, key:"chicken"},
-      {name:"厚燒排骨弁当",  price:175, key:"ribs"},
-      {name:"和風牛肉弁当",  price:175, key:"beef"},
-    ]},
-  { name:"鬍鬚張 新竹關新店", icon:"🧔", rating:"4.9", eta:"22", price:"$$",
-    promo:"指定品項折$25",
+    menu:[{name:"招牌燒肉弁当",price:145,key:"pork"},{name:"照燒雞腿弁当",price:165,key:"chicken"},
+          {name:"厚燒排骨弁当",price:175,key:"ribs"},{name:"和風牛肉弁当",price:175,key:"beef"}]},
+  { name:"鬍鬚張 新竹關新店", icon:"🧔", rating:"4.9", eta:"22", price:"$$", promo:"指定品項折$25",
     url:"https://www.ubereats.com/store/%E9%AC%8D%E9%AC%9A%E5%BC%B5-%E6%96%B0%E7%AB%B9%E9%97%9C%E6%96%B0%E5%BA%97/jM4VEC2KSueyQU4YcviYbw?diningMode=DELIVERY",
-    menu:[
-      {name:"雞魯便當",      price:123, key:"chicken"},
-      {name:"京饌里肌便當",  price:175, key:"pork"},
-      {name:"京饌雞腿便當",  price:194, key:"drumleg"},
-      {name:"京饌招牌便當",  price:210, key:"signature"},
-    ]},
-  { name:"姊妹飯桶 北大店", icon:"🪣", rating:"4.9", eta:"29", price:"$$",
-    promo:"",
+    menu:[{name:"雞魯便當",price:123,key:"chicken"},{name:"京饌里肌便當",price:175,key:"pork"},
+          {name:"京饌雞腿便當",price:194,key:"drumleg"},{name:"京饌招牌便當",price:210,key:"signature"}]},
+  { name:"姊妹飯桶 北大店", icon:"🪣", rating:"4.9", eta:"29", price:"$$", promo:"",
     url:"https://www.ubereats.com/store/%E5%A7%8A%E5%A6%B9%E9%A3%AF%E6%A1%B6-%E5%8C%97%E5%A4%A7%E5%BA%97/PjM7JA_fXl-5QgVc3y-kBA?diningMode=DELIVERY",
-    menu:[
-      {name:"排骨便當",      price:170, key:"pork"},
-      {name:"蔥油雞便當",    price:164, key:"chicken"},
-      {name:"大滷腿便當",    price:184, key:"drumleg"},
-      {name:"蒜泥白肉便當",  price:150, key:"garlic"},
-    ]},
-  { name:"梁社漢排骨 關新店", icon:"🍖", rating:"4.9", eta:"22", price:"$",
-    promo:"",
+    menu:[{name:"排骨便當",price:170,key:"pork"},{name:"蔥油雞便當",price:164,key:"chicken"},
+          {name:"大滷腿便當",price:184,key:"drumleg"},{name:"蒜泥白肉便當",price:150,key:"garlic"}]},
+  { name:"梁社漢排骨 關新店", icon:"🍖", rating:"4.9", eta:"22", price:"$", promo:"",
     url:"https://www.ubereats.com/store/%E6%A2%81%E7%A4%BE%E6%BC%A2%E6%8E%92%E9%AA%A8-%E6%96%B0%E7%AB%B9%E9%97%9C%E6%96%B0%E5%BA%97/vnlt2PKxS7GY8L9BdYazrw?diningMode=DELIVERY",
-    menu:[
-      {name:"炸紅糟肉飯",    price:140, key:"pork"},
-      {name:"炸雞腿飯",      price:168, key:"chicken"},
-    ]},
-  { name:"探吉飯包 北大店", icon:"🎁", rating:"4.9", eta:"35", price:"$$",
-    promo:"",
+    menu:[{name:"炸紅糟肉飯",price:140,key:"pork"},{name:"炸雞腿飯",price:168,key:"chicken"}]},
+  { name:"探吉飯包 北大店", icon:"🎁", rating:"4.9", eta:"35", price:"$$", promo:"",
     url:"https://www.ubereats.com/store/%E6%8E%A2%E5%90%89%E9%A3%AF%E5%8C%85-%E5%8C%97%E5%A4%A7%E5%BA%97/D09z1G8mXxuz4Zm9-z-GIQ?diningMode=DELIVERY",
-    menu:[
-      {name:"滷肉飯便當",    price:138, key:"braised"},
-      {name:"滷排骨便當",    price:158, key:"pork"},
-      {name:"炸雞腿便當",    price:188, key:"chicken"},
-      {name:"滷大雞腿便當",  price:198, key:"drumleg"},
-    ]},
+    menu:[{name:"滷肉飯便當",price:138,key:"braised"},{name:"滷排骨便當",price:158,key:"pork"},
+          {name:"炸雞腿便當",price:188,key:"chicken"},{name:"滷大雞腿便當",price:198,key:"drumleg"}]},
 ];
 
-// 關鍵字對應 menu key
-const KW = {
-  "雞腿":"chicken","雞":"chicken","腿":"chicken",
-  "排骨":"pork","排":"pork",
+// ── 素食（Uber Eats 新竹研發二路22號 即時資料）──
+const VEG = [
+  { name:"素食園", icon:"🥬", rating:"4.9", eta:"12", price:"$", promo:"", veg:true,
+    url:"https://www.ubereats.com/store/%E7%B4%A0%E9%A3%9F%E5%9C%92/fZlOtxW2QkWupta4Ja9VfQ?diningMode=DELIVERY",
+    menu:[{name:"素魯飯",price:60,key:"rice"},{name:"素香羹飯",price:60,key:"soup_rice"},
+          {name:"經濟餐盒",price:100,key:"box"}]},
+  { name:"清大商圈 一鮮素蔬食", icon:"🌱", rating:"4.9", eta:"24", price:"$$", promo:"", veg:true,
+    url:"https://www.ubereats.com/store/%E6%B8%85%E5%A4%A7%E5%95%86%E5%9C%88-%E4%B8%80%E9%AE%AE%E7%B4%A0%E8%94%AC%E9%A3%9F/lQq1_5rkWmmszIyX15WfVQ?diningMode=DELIVERY",
+    menu:[{name:"三杯素雞飯",price:170,key:"chicken"},{name:"香酥素排飯",price:170,key:"ribs"},
+          {name:"三寶飯",price:170,key:"combo"},{name:"鐵板猴菇排",price:300,key:"mushroom"}]},
+  { name:"蔬果子蔬食料理 新竹店", icon:"🥦", rating:"4.9", eta:"25", price:"$", promo:"買一送一", veg:true,
+    url:"https://www.ubereats.com/store/%E8%94%AC%E6%9E%9C%E5%AD%90%E8%94%AC%E9%A3%9F%E6%96%99%E7%90%86-%E6%96%B0%E7%AB%B9%E5%BA%97/aNux0GnlU_2CgkpphQJ-qQ?diningMode=DELIVERY",
+    menu:[{name:"酥炸素排飯",price:100,key:"ribs"},{name:"炸素排",price:50,key:"fried"},
+          {name:"蔬饌九宮格便當",price:350,key:"premium"}]},
+  { name:"棗子樹素食店", icon:"🌿", rating:"4.9", eta:"23", price:"$", promo:"", veg:true,
+    url:"https://www.ubereats.com/store/%E6%A3%97%E5%AD%90%E6%A8%B9%E7%B4%A0%E9%A3%9F%E5%BA%97/7a5_5WXMTua7HT7w3HtFrQ?diningMode=DELIVERY",
+    menu:[{name:"素魯飯便當",price:80,key:"rice"},{name:"黑胡椒香酥排便當",price:85,key:"ribs"},
+          {name:"素魯飯",price:55,key:"rice_s"}]},
+  { name:"德緣素膳坊", icon:"☸️", rating:"4.9", eta:"28", price:"$$", promo:"", veg:true,
+    url:"https://www.ubereats.com/store/%E5%BE%B7%E7%B7%A3%E7%B4%A0%E8%86%B3%E5%9D%8A/cwcJDaO4XjC3Q-62JarRiw?diningMode=DELIVERY",
+    menu:[{name:"純素主廚便當",price:160,key:"chef"},{name:"蛋奶素主廚便當",price:160,key:"egg"},
+          {name:"純素御膳便當",price:240,key:"premium"},{name:"五菜米粉便當",price:170,key:"noodle"}]},
+];
+
+const KW_MEAT = {
+  "雞腿":"chicken","腿":"chicken","雞":"chicken",
+  "排骨":"pork","排":"pork","里肌":"pork","里肉":"pork",
   "控肉":"braised","控":"braised","滷肉":"braised","焢肉":"braised",
-  "里肌":"pork","里肉":"pork",
   "牛肉":"beef","牛":"beef",
-  "燒肉":"pork","燒":"pork",
-  "蝦":"shrimp","蝦捲":"shrimp",
+  "燒肉":"pork","蝦":"shrimp","蝦捲":"shrimp",
   "香腸":"sausage","腸":"sausage",
   "素食":"veg","素":"veg","菜飯":"veg",
-  "招牌":"signature",
-  "蒜泥":"garlic",
-  "鯖魚":"fish","魚":"fish",
+};
+const KW_VEG = {
+  "素雞":"chicken","素排":"ribs","素排飯":"ribs",
+  "排":"ribs","素魯":"rice","魯飯":"rice",
+  "猴菇":"mushroom","菇":"mushroom",
+  "三寶":"combo","咖哩":"curry","滷燥":"rice",
+  "主廚":"chef","御膳":"premium","米粉":"noodle",
+  "經濟":"box","餐盒":"box",
 };
 
-let idx=0, items=[], ord={};
+let tab="meat", lists={meat:MEAT, veg:VEG}, idx={meat:0, veg:0};
+let items=[], ord={};
 
 window.addEventListener("DOMContentLoaded",()=>{
   document.getElementById("qi").addEventListener("keydown",e=>{if(e.key==="Enter")parse();});
-  idx=Math.floor(Math.random()*SHOPS.length);
-  show(SHOPS[idx]);
+  idx.meat=Math.floor(Math.random()*MEAT.length);
+  idx.veg=Math.floor(Math.random()*VEG.length);
+  show(lists[tab][idx[tab]]);
 });
 
-function next(){idx=(idx+1)%SHOPS.length;show(SHOPS[idx]);ord={};renderOrder();}
+function switchTab(t){
+  tab=t;
+  document.getElementById("tab-meat").classList.toggle("active",t==="meat");
+  document.getElementById("tab-veg").classList.toggle("active",t==="veg");
+  document.getElementById("shop-lbl").textContent=
+    t==="veg"?"🌿 素食店家（Uber Eats 新竹即時）":"🥩 葷食店家（Uber Eats 新竹即時）";
+  ord={}; show(lists[tab][idx[tab]]);
+}
+
+function next(){idx[tab]=(idx[tab]+1)%lists[tab].length; ord={}; show(lists[tab][idx[tab]]);}
 
 function show(s){
   document.getElementById("si").textContent=s.icon;
   document.getElementById("sn").textContent=s.name;
-  const m=document.getElementById("sm");
   let html=`<span class="badge g">⭐ ${s.rating}</span>
     <span class="badge o">🕐 ${s.eta}分鐘</span>
     <span class="badge">${s.price}</span>`;
+  if(s.veg) html+=`<span class="badge v">🌿 素食</span>`;
   if(s.promo) html+=`<span class="badge p">🏷 ${s.promo}</span>`;
-  m.innerHTML=html;
-  items=s.menu; ord={}; renderMenu(); renderOrder();
+  document.getElementById("sm").innerHTML=html;
+  items=s.menu; renderMenu(); renderOrder();
 }
 
 function renderMenu(){
@@ -226,15 +240,16 @@ function chg(k,d){
 
 function parse(){
   const raw=document.getElementById("qi").value.trim(); if(!raw)return;
+  const kw=tab==="veg"?KW_VEG:KW_MEAT;
   const toks=[...raw.matchAll(/(\d+)\s*([^\d\s]+)|([^\d\s]+)\s*(\d+)/g)];
   let found=false;
   for(const m of toks){
     const qty=parseInt(m[1]||m[4]); const word=(m[2]||m[3]||"").trim();
     if(!qty||!word)continue;
     let key=null;
-    for(const it of items){if(it.name.includes(word)||word.includes(it.name.replace(/便當|飯|弁当/g,""))){key=it.key;break;}}
-    if(!key){for(const [kw,k2] of Object.entries(KW)){if(word.includes(kw)){key=k2;break;}}}
-    if(!key){key="c_"+word;if(!items.find(x=>x.key===key)){items.push({name:word,price:120,key});renderMenu();}}
+    for(const it of items){if(it.name.includes(word)||word.includes(it.name.replace(/便當|飯|弁当|素/g,""))){key=it.key;break;}}
+    if(!key){for(const [k2,v] of Object.entries(kw)){if(word.includes(k2)){key=v;break;}}}
+    if(!key){key="c_"+word;if(!items.find(x=>x.key===key)){items.push({name:word,price:100,key});renderMenu();}}
     ord[key]=(ord[key]||0)+qty; found=true;
   }
   if(found){
@@ -242,7 +257,7 @@ function parse(){
       const e=document.getElementById("q-"+it.key);if(e)e.textContent=ord[it.key]||0;
       const c=document.getElementById("mi-"+it.key);if(c)c.classList.toggle("sel",(ord[it.key]||0)>0);
     });
-    renderOrder(); document.getElementById("qi").value=""; toast("✅ 已加入訂單！");
+    renderOrder(); document.getElementById("qi").value=""; toast("✅ 已加入！");
   }else{toast("⚠️ 格式：1雞腿 2排骨");}
 }
 
@@ -260,9 +275,9 @@ function renderOrder(){
   btn.textContent=`🛒 前往 Uber Eats 下單 — NT$${total}`;
 }
 
-function order(){
-  window.open(SHOPS[idx].url,"_blank");
-  toast("🍱 已開啟 "+SHOPS[idx].name+"！");
+function placeOrder(){
+  window.open(lists[tab][idx[tab]].url,"_blank");
+  toast("🍱 已開啟 "+lists[tab][idx[tab]].name+"！");
 }
 
 function toast(msg){
