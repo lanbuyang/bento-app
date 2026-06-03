@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>便當點餐 · 科林研發</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green: #06C167; --green-d: #049A52;
+  --bg: #F5F5F5; --card: #fff; --text: #1A1A1A; --muted: #888;
+  --r: 16px;
+}
+body { font-family: -apple-system,"PingFang TC",sans-serif; background:var(--bg); color:var(--text); min-height:100dvh; display:flex; flex-direction:column; }
+header { background:var(--green); color:white; padding:14px 18px; padding-top:calc(14px + env(safe-area-inset-top)); display:flex; align-items:center; justify-content:space-between; }
+header h1 { font-size:20px; font-weight:800; }
+.address-chip { background:rgba(255,255,255,.2); border-radius:20px; padding:4px 10px; font-size:12px; }
+.section { padding:12px 14px 0; }
+.label { font-size:11px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
+.shop-card { background:var(--card); border-radius:var(--r); padding:14px 16px; box-shadow:0 2px 8px rgba(0,0,0,.08); display:flex; align-items:center; gap:14px; }
+.shop-icon { font-size:36px; flex-shrink:0; }
+.shop-info { flex:1; }
+.shop-info h2 { font-size:17px; font-weight:700; }
+.shop-meta { display:flex; gap:8px; margin-top:5px; flex-wrap:wrap; }
+.badge { font-size:12px; padding:2px 8px; border-radius:20px; background:#F0F0F0; color:#444; font-weight:600; }
+.badge.g { background:#E6F9F0; color:var(--green-d); }
+.badge.o { background:#FFF3E0; color:#E65100; }
+#refresh-btn { background:var(--green); color:white; border:none; border-radius:10px; padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer; flex-shrink:0; }
+.menu-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.menu-item { background:var(--card); border-radius:var(--r); padding:14px; box-shadow:0 2px 6px rgba(0,0,0,.07); display:flex; flex-direction:column; gap:5px; border:2.5px solid transparent; cursor:pointer; transition:border-color .15s,transform .1s; user-select:none; }
+.menu-item:active { transform:scale(.97); }
+.menu-item.selected { border-color:var(--green); background:#F0FCF5; }
+.item-name { font-size:15px; font-weight:700; }
+.item-price { font-size:13px; color:var(--green-d); font-weight:600; }
+.qty-row { display:flex; align-items:center; gap:6px; margin-top:4px; }
+.qty-btn { width:28px; height:28px; border-radius:50%; border:2px solid var(--green); background:white; color:var(--green); font-size:18px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.qty-btn:active { background:var(--green); color:white; }
+.qty-num { font-size:16px; font-weight:800; min-width:20px; text-align:center; }
+.quick-row { display:flex; gap:8px; }
+#quick-input { flex:1; border:2px solid #E0E0E0; border-radius:12px; padding:11px 14px; font-size:16px; outline:none; font-family:inherit; transition:border-color .2s; }
+#quick-input:focus { border-color:var(--green); }
+#parse-btn { background:var(--green); color:white; border:none; border-radius:12px; padding:11px 18px; font-size:14px; font-weight:700; cursor:pointer; white-space:nowrap; }
+.order-card { background:var(--card); border-radius:var(--r); box-shadow:0 2px 8px rgba(0,0,0,.08); overflow:hidden; }
+.order-head { background:#F8F8F8; padding:10px 16px; font-size:12px; font-weight:700; color:var(--muted); border-bottom:1px solid #EEE; }
+.order-row { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; font-size:15px; border-bottom:1px solid #F5F5F5; }
+.order-row:last-child { border-bottom:none; }
+.order-total { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; font-size:16px; font-weight:800; border-top:2px solid #EEE; }
+.order-total span:last-child { color:var(--green-d); }
+.empty { padding:20px; text-align:center; color:var(--muted); font-size:14px; }
+.order-section { padding:12px 14px; flex:1; }
+.cta-bar { padding:12px 14px; padding-bottom:calc(12px + env(safe-area-inset-bottom)); background:var(--card); box-shadow:0 -2px 10px rgba(0,0,0,.07); }
+#order-btn { width:100%; background:var(--green); color:white; border:none; border-radius:16px; padding:16px; font-size:18px; font-weight:800; cursor:pointer; transition:transform .1s; }
+#order-btn:active { transform:scale(.98); }
+#order-btn:disabled { background:#CCC; }
+.toast { position:fixed; bottom:100px; left:50%; transform:translateX(-50%); background:#1A1A1A; color:white; padding:10px 22px; border-radius:24px; font-size:14px; font-weight:600; opacity:0; transition:opacity .3s; pointer-events:none; z-index:200; white-space:nowrap; }
+.toast.show { opacity:1; }
+</style>
+</head>
+<body>
+<header>
+  <div><h1>🍱 今日便當</h1><small>科林研發</small></div>
+  <div class="address-chip">📍 研發二路22號</div>
+</header>
+
+<div class="section">
+  <div class="label">今日推薦店家</div>
+  <div class="shop-card">
+    <div class="shop-icon" id="shop-icon">🍱</div>
+    <div class="shop-info">
+      <h2 id="shop-name">載入中…</h2>
+      <div class="shop-meta">
+        <span class="badge g" id="shop-rating">—</span>
+        <span class="badge o" id="shop-time">—</span>
+        <span class="badge" id="shop-price">—</span>
+      </div>
+    </div>
+    <button id="refresh-btn" onclick="nextShop()">換一家</button>
+  </div>
+</div>
+
+<div class="section">
+  <div class="label" style="margin-top:10px">點選加入訂單</div>
+  <div class="menu-grid" id="menu-grid"></div>
+</div>
+
+<div class="section">
+  <div class="label" style="margin-top:10px">快速輸入（例：1雞腿 2排骨）</div>
+  <div class="quick-row">
+    <input id="quick-input" placeholder="數字＋品名，按 Enter 確認" autocomplete="off">
+    <button id="parse-btn" onclick="parseQuick()">確認</button>
+  </div>
+</div>
+
+<div class="order-section">
+  <div class="label" style="margin-top:4px">訂單明細</div>
+  <div class="order-card">
+    <div class="order-head">訂購人：戴薇玲 ／ 配送至科林研發</div>
+    <div id="order-rows"><div class="empty">尚未選擇餐點</div></div>
+    <div class="order-total" id="order-total" style="display:none">
+      <span>合計</span><span id="total-price">$0</span>
+    </div>
+  </div>
+</div>
+
+<div class="cta-bar">
+  <button id="order-btn" disabled onclick="placeOrder()">選擇餐點後下單</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── 便當店資料（Uber Eats 新竹） ──
+const SHOPS = [
+  { name:"鬍鬚張便當", icon:"🍱", rating:"4.6", time:"15-25分鐘", price:"$",
+    url:"https://www.ubereats.com/tw/search?q=鬍鬚張&pl=sJn97JG8T6mMFi1gK6RNPQ%3D%3D",
+    menu:[{name:"雞腿便當",price:110,key:"chicken"},{name:"排骨便當",price:105,key:"pork"},
+          {name:"控肉便當",price:95,key:"braised"},{name:"素食便當",price:85,key:"veg"}]},
+  { name:"池上便當", icon:"🎍", rating:"4.5", time:"20-30分鐘", price:"$",
+    url:"https://www.ubereats.com/tw/search?q=池上便當",
+    menu:[{name:"雞腿便當",price:120,key:"chicken"},{name:"排骨便當",price:115,key:"pork"},
+          {name:"鮭魚便當",price:135,key:"salmon"},{name:"素食便當",price:100,key:"veg"}]},
+  { name:"鐵路便當", icon:"🚂", rating:"4.4", time:"20-30分鐘", price:"$",
+    url:"https://www.ubereats.com/tw/search?q=鐵路便當",
+    menu:[{name:"雞腿便當",price:100,key:"chicken"},{name:"排骨便當",price:95,key:"pork"},
+          {name:"控肉便當",price:90,key:"braised"},{name:"素食便當",price:80,key:"veg"}]},
+  { name:"快餐便當自助餐", icon:"🥡", rating:"4.3", time:"15-25分鐘", price:"$",
+    url:"https://www.ubereats.com/tw/search?q=便當+新竹",
+    menu:[{name:"雞腿便當",price:90,key:"chicken"},{name:"排骨便當",price:85,key:"pork"},
+          {name:"控肉便當",price:80,key:"braised"},{name:"素食便當",price:75,key:"veg"}]},
+];
+
+const KW = {"雞腿":"chicken","雞":"chicken","排骨":"pork","排":"pork",
+            "控肉":"braised","控":"braised","素食":"veg","素":"veg",
+            "鮭魚":"salmon","鮭":"salmon"};
+
+let shopIdx = 0, menuItems = [], order = {};
+
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("quick-input").addEventListener("keydown", e => {
+    if (e.key === "Enter") parseQuick();
+  });
+  // Random shop on load
+  shopIdx = Math.floor(Math.random() * SHOPS.length);
+  displayShop(SHOPS[shopIdx]);
+});
+
+function nextShop() {
+  shopIdx = (shopIdx + 1) % SHOPS.length;
+  displayShop(SHOPS[shopIdx]);
+  order = {};
+  renderOrder();
+}
+
+function displayShop(s) {
+  document.getElementById("shop-icon").textContent = s.icon;
+  document.getElementById("shop-name").textContent = s.name;
+  document.getElementById("shop-rating").textContent = "⭐ " + s.rating;
+  document.getElementById("shop-time").textContent = "🕐 " + s.time;
+  document.getElementById("shop-price").textContent = s.price;
+  menuItems = s.menu;
+  order = {};
+  renderMenu();
+  renderOrder();
+}
+
+function renderMenu() {
+  document.getElementById("menu-grid").innerHTML = menuItems.map(item => `
+    <div class="menu-item" id="mi-${item.key}" onclick="toggleItem('${item.key}')">
+      <div class="item-name">${item.name}</div>
+      <div class="item-price">$${item.price}</div>
+      <div class="qty-row">
+        <button class="qty-btn" onclick="event.stopPropagation();chg('${item.key}',-1)">−</button>
+        <span class="qty-num" id="qty-${item.key}">0</span>
+        <button class="qty-btn" onclick="event.stopPropagation();chg('${item.key}',1)">+</button>
+      </div>
+    </div>`).join("");
+}
+
+function toggleItem(k) { if (!order[k]) chg(k, 1); }
+function chg(k, d) {
+  order[k] = Math.max(0, (order[k]||0) + d);
+  const e = document.getElementById("qty-"+k);
+  if (e) e.textContent = order[k];
+  const c = document.getElementById("mi-"+k);
+  if (c) c.classList.toggle("selected", order[k] > 0);
+  renderOrder();
+}
+
+function parseQuick() {
+  const raw = document.getElementById("quick-input").value.trim();
+  if (!raw) return;
+  const tokens = [...raw.matchAll(/(\d+)\s*([^\d\s]+)|([^\d\s]+)\s*(\d+)/g)];
+  let found = false;
+  for (const m of tokens) {
+    const qty = parseInt(m[1]||m[4]);
+    const word = (m[2]||m[3]||"").trim();
+    if (!qty || !word) continue;
+    let key = null;
+    for (const item of menuItems) {
+      if (item.name.includes(word) || word.includes(item.name.replace("便當",""))) { key=item.key; break; }
+    }
+    if (!key) { for (const [kw,k] of Object.entries(KW)) { if (word.includes(kw)) { key=k; break; } } }
+    if (!key) {
+      key = "custom_"+word;
+      if (!menuItems.find(x=>x.key===key)) { menuItems.push({name:word+"便當",price:90,key}); renderMenu(); }
+    }
+    order[key] = (order[key]||0) + qty;
+    found = true;
+  }
+  if (found) {
+    menuItems.forEach(item => {
+      const e=document.getElementById("qty-"+item.key); if(e) e.textContent=order[item.key]||0;
+      const c=document.getElementById("mi-"+item.key); if(c) c.classList.toggle("selected",(order[item.key]||0)>0);
+    });
+    renderOrder();
+    document.getElementById("quick-input").value="";
+    showToast("✅ 已加入訂單！");
+  } else { showToast("⚠️ 格式：1雞腿 2排骨"); }
+}
+
+function renderOrder() {
+  const rows=document.getElementById("order-rows"), tot=document.getElementById("order-total"), btn=document.getElementById("order-btn");
+  const items=menuItems.filter(i=>order[i.key]>0);
+  if (!items.length) {
+    rows.innerHTML='<div class="empty">尚未選擇餐點 — 點菜單或輸入快速點餐</div>';
+    tot.style.display="none"; btn.disabled=true; btn.textContent="選擇餐點後下單"; return;
+  }
+  let total=0;
+  rows.innerHTML=items.map(item=>{const sub=item.price*order[item.key];total+=sub;
+    return `<div class="order-row"><span>${item.name} ×${order[item.key]}</span><span>$${sub}</span></div>`;
+  }).join("");
+  document.getElementById("total-price").textContent="$"+total;
+  tot.style.display="flex"; btn.disabled=false;
+  btn.textContent=`🛒 前往 Uber Eats 下單 — $${total}`;
+}
+
+function placeOrder() {
+  const shop = SHOPS[shopIdx];
+  window.open(shop.url, "_blank");
+  showToast("🍱 已開啟 "+shop.name+"！");
+}
+
+function showToast(msg) {
+  const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2200);
+}
+</script>
+</body>
+</html>
